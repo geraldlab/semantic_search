@@ -144,10 +144,10 @@ def get_search_result(search_dataset, search_term,
     
     
     search_embedding =  get_embeddings([search_term], sentence_tokenizer, sentence_model, device).cpu().detach().numpy()
-    st.write(f'Searched for:*{search_term}')
+   
     #run the search
     scores, samples = search_dataset.get_nearest_examples(my_constant.embeddings, search_embedding, k=k )
-    st.write(f'Scores:{scores} !!')
+
     results = pd.DataFrame.from_dict(samples)
 
     results[my_constant.scores] = scores
@@ -165,8 +165,7 @@ def search_for_documents(search_for, searcher_dict, prev_len, k=10):
                                               searcher_dict['sentence_model'], 
                                               searcher_dict['device'], k=k)
 
-    st.write(f'results are{len(results)} - {results.columns}')
-    
+     
     results = results.drop_duplicates(subset=printable_cols)
 
     marked_result = post_process_result(results, search_for, searcher_dict, prev_len=prev_len)

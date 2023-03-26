@@ -11,6 +11,8 @@ import time
 import sys, os
 import logging
 
+from transformers import AutoTokenizer, AutoModel
+
 #custom packages
 sys.path.insert(1, os.getcwd())
 
@@ -66,17 +68,18 @@ def load_data_model():
         if st_wd:
             stop_words = stop_words + [str(s).strip().lower() for s in st_wd.split(my_constant.comma) if s]
     
-        st.write(search_dataset)
-                 
-        model_path = os.path.join(os.getcwd(), 'model')
-        model_path = os.path.join(model_path, 'multi-qa-mpnet-base-dot-v1')
+        #load sentence model
+        model_ckpt = "sentence-transformers/multi-qa-mpnet-base-dot-v1"
 
-        #loading model
-        sentence_tokenizer, sentence_model = my_searcher.load_sentence_model_tokenizer(model_path, device)
-    
+        sentence_tokenizer = AutoTokenizer.from_pretrained(model_ckpt, force_download=True )
+
+        sentence_model = AutoModel.from_pretrained(model_ckpt)
+
+        st.write(f'models loaded{search_dataset}')
+
         if sentence_model is None:
             st.write(my_constant.abort_msg )
-            raise Exception(f'failed to load model from: {model_path}')
+            raise Exception(f'failed to load model')
 
         return {
                 'search_dataset': search_dataset, 
@@ -91,8 +94,6 @@ def load_data_model():
 
 searcher_dict = load_data_model()
 
-#info
-st.write(searcher_dict['search_dataset'])
 
 
 try:

@@ -2,15 +2,11 @@ import pandas as pd
 
 from collections import defaultdict
 
-from datasets import load_dataset, load_from_disk
-from transformers import AutoTokenizer, AutoModel
 
 import os
 from pathlib import Path
 from datetime import datetime
-import time
 import streamlit as st
-
 import logging
 
 
@@ -43,16 +39,6 @@ def get_embeddings(text_list, sentence_tokenizer, sentence_model, device):
     
     return cls_pooling(model_output)
 
-'''
-############################################################
-    - Add FAISS index
-'''
-def add_faiss_index(content_dataset, file_name=None):
-    #add faiss index
-    content_dataset.add_faiss_index(column=my_constant.embeddings)
-
-    if file_name:
-       content_dataset.save_faiss_index(my_constant.embeddings, file_name)
 
 
 '''
@@ -158,19 +144,22 @@ def get_search_result(search_dataset, search_term,
 
 
 def search_for_documents(search_for, searcher_dict, prev_len, k=10):
-    start_tme = datetime.now()
+    try:
+        start_tme = datetime.now()
     
-    results = get_search_result(searcher_dict['search_dataset'], search_for, 
+        results = get_search_result(searcher_dict['search_dataset'], search_for, 
                                               searcher_dict['sentence_tokenizer'], 
                                               searcher_dict['sentence_model'], 
                                               searcher_dict['device'], k=k)
 
      
-    results = results.drop_duplicates(subset=printable_cols)
+        results = results.drop_duplicates(subset=printable_cols)
 
-    marked_result = post_process_result(results, search_for, searcher_dict, prev_len=prev_len)
+        marked_result = post_process_result(results, search_for, searcher_dict, prev_len=prev_len)
 
-    return marked_result, my_utils.get_time_taken(start_tme)
+        return marked_result, my_utils.get_time_taken(start_tme)
+    except Exception as e:
+        logging.error(f'{str(e)}')
 
 '''
 ###########################################################################
@@ -211,20 +200,3 @@ def print_streamlit_results(_df):
         st.markdown(f'{my_constant.open_i}*score: {row[my_constant.scores]:.1f}{my_constant.close_i}')
         
         st.write("-" * 100)
-
-      
-    
-'''
-#############################################################################
-    - Load model and tokenizer
-'''
-def load_sentence_model_tokenizer(sentence_model_path, device):
-    #initialise model
-    sentence_model_path = os.path.join(os.getcwd(), sentence_model_path)
-
-    sentence_tokenizer = AutoTokenizer.from_pretrained(sentence_model_path)
-    sentence_model = AutoModel.from_pretrained(sentence_model_path)
-
-    sentence_model.to(device)
-
-    return sentence_tokenizer, sentence_model

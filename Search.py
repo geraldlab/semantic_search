@@ -4,7 +4,7 @@ from collections import Counter
 from nltk.corpus import stopwords
 
 import torch
-from datasets import load_from_disk
+from datasets import load_dataset
 
 import sys, os
 import logging
@@ -43,20 +43,19 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 @st.cache_resource
 def load_data_model():
     try:
-        search_ds_path = os.path.join(os.getcwd(), "asset")
-        search_ds_path = os.path.join(search_ds_path, 'searcher_dataset')
-
+        #load data
+        search_ds_path = os.path.join(os.getcwd(), "data")
+       
         #load from disk
-        search_dataset = load_from_disk(search_ds_path)
+        search_dataset = load_dataset('parquet', data_files=os.path.join(search_ds_path, 'embed_dataset.parquet'), split="train")
 
-        faiss_idx = os.path.join(os.getcwd(), "asset")
-
-        faiss_idx = os.path.join(faiss_idx, "content_index_26_03_2023.faiss")
-
-        search_dataset.load_faiss_index(my_constant.embeddings, faiss_idx )
-
+                
         if search_dataset is None:
-            st.write("Ops! failed to load data")
+            st.write("Ops sorry! failed to load data")
+            raise Exception("Failed to load dataset!!")
+
+        #add faiss index
+        search_dataset.add_faiss_index(column=my_constant.embeddings)
         
         #load stop words
         stop_words = stopwords.words('english')

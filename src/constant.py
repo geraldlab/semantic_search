@@ -49,10 +49,8 @@ closing_tag = ']**'
 open_i='_' #italic open markdown
 close_i='_' #italic close markdown
 
-embed_ds_pfx = 'embed_ds'
-
 #yaml file keys
-yaml_file_name='search_documents_yaml.yaml'
+yaml_file_name='search_yaml.yaml'
 app='APP'
 search_setting= 'SEARCHER_SETTINGS'
 

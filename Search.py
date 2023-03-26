@@ -36,9 +36,6 @@ search_cfg = cfg[my_constant.search_setting]
 max_len = search_cfg.get(my_constant.max_doc_len) if search_cfg.get(my_constant.max_doc_len) else 800
 prev_len = search_cfg.get(my_constant.max_preview)
 
-model_path = cfg.get(my_constant.app).get(my_constant.model_path, r'model\multi-qa-mpnet-base-dot-v1')
-if model_path is None:
-    raise Exception('Model path missing!!')
 
 #config device
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

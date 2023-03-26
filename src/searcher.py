@@ -142,11 +142,12 @@ def post_process_result(df, search_term, searcher_dict, prev_len = 200):
 def get_search_result(search_dataset, search_term, 
                       sentence_tokenizer, sentence_model, device, k=5):
     
+    
     search_embedding =  get_embeddings([search_term], sentence_tokenizer, sentence_model, device).cpu().detach().numpy()
-
+    st.write(f'Searched for:*{search_term}')
     #run the search
     scores, samples = search_dataset.get_nearest_examples(my_constant.embeddings, search_embedding, k=k )
-
+    st.write(f'Scores:{scores} !!')
     results = pd.DataFrame.from_dict(samples)
 
     results[my_constant.scores] = scores

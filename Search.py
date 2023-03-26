@@ -6,6 +6,7 @@ from nltk.corpus import stopwords
 import torch
 from datasets import load_dataset
 
+import time
 import sys, os
 import logging
 
@@ -48,8 +49,10 @@ def load_data_model():
        
         #load from disk
         search_dataset = load_dataset('parquet', data_files=os.path.join(search_ds_path, 'embed_dataset.parquet'), split="train")
+        time.sleep(.2)
 
-                
+        st.write(search_dataset)
+
         if search_dataset is None:
             st.write("Ops sorry! failed to load data")
             raise Exception("Failed to load dataset!!")

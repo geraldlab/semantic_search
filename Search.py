@@ -75,8 +75,6 @@ def load_data_model():
 
         sentence_model = AutoModel.from_pretrained(model_ckpt)
 
-        st.write(f'models loaded{search_dataset}')
-
         if sentence_model is None:
             st.write(my_constant.abort_msg )
             raise Exception(f'failed to load model')

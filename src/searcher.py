@@ -164,6 +164,8 @@ def search_for_documents(search_for, searcher_dict, prev_len, k=10):
                                               searcher_dict['sentence_model'], 
                                               searcher_dict['device'], k=k)
 
+    st.write(f'results are{len(results)} - {results.columns}')
+    
     results = results.drop_duplicates(subset=printable_cols)
 
     marked_result = post_process_result(results, search_for, searcher_dict, prev_len=prev_len)
@@ -184,63 +186,12 @@ def get_faiss_idx_path(working_dir):
         if os.path.exists(fp) and p.is_file() and p.name.endswith(my_constant.faiss):
             return fp
         
-def load_search_dataset(working_dir, search_ds_path, sfx='runtime'):
-    try:
-        if not os.path.exists(search_ds_path): #not existing dataset on disk
-            data = []
-    
-            for _f in os.listdir(working_dir):
-                fp = os.path.join(working_dir, _f)
-                p = Path(fp)
-
-                if os.path.exists(fp) and p.is_file() and p.name.startswith(my_constant.embed_ds_pfx):
-                    data.append(load_dataset(my_constant.parquet, data_files=fp, split="train"))
-    
-            #save it to disk
-            search_dataset.save_to_disk(search_ds_path)
-            time.sleep(.2)
-    
-        #load from disk
-        search_dataset = load_from_disk(search_ds_path)
-        search_dataset.load_faiss_index(my_constant.embeddings, faiss_idx )
-
-        #load faiss index from disk
-        faiss_idx = get_faiss_idx_path(working_dir)
-
-        if faiss_idx:
-            search_dataset.load_faiss_index(my_constant.embeddings, faiss_idx )
-        else:
-           tmp_path = os.path.join(working_dir, f'content_index_{datetime.now().strftime("%d_%m_%Y")}_{sfx}.{my_constant.faiss}')
-           add_faiss_index(search_dataset, tmp_path )
-
-        return search_dataset
-
-    except Exception as e:
-        logging.error(f'Loading searching DS: {str(e)}')
-       
+      
 
 '''
 ###########################################################################
     - Visualize Results
 '''
-def print_results(_df):
-    
-    for i, row in _df.iterrows():
-        print(f"{my_constant.opening_tag}{row[my_constant.title]}{my_constant.closing_tag}")
-        print(f"Symbol: {row['st_ai']}")
-        content = my_utils.remove_multiple_spaces(row[my_constant.content].strip())
-
-        print(f"{my_constant.open_i}{content}{my_constant.close_i} ...")
-
-        print(f"{my_constant.open_i}Keywords:{row[my_constant.keywords]}{my_constant.close_i}")
-        print(f"{my_constant.open_i}Number of mentions  of search word(s) in document : {my_constant.opening_tag}{row[my_constant.num_words_in_content]}{my_constant.closing_tag}{my_constant.close_i}")
-        print(f"{my_constant.opening_tag}{row[my_constant.url]}{my_constant.closing_tag}")
-       
-        print(f'{my_constant.open_i}Publication Date: {row[my_constant.date_created]}{my_constant.close_i}') 
-        
-        print(f' *score: {row[my_constant.scores]:.1f}{my_constant.close_i}')
-        
-        print("-" * 100)
 
 def print_streamlit_results(_df):
        

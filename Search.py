@@ -34,7 +34,7 @@ log_dir = cfg.get('log_dir')
 #search config
 search_cfg = cfg[my_constant.search_setting] 
 max_len = search_cfg.get(my_constant.max_doc_len) if search_cfg.get(my_constant.max_doc_len) else 800
-prev_len = search_cfg.get(my_constant.max_preview)
+
 
 
 #config device
@@ -97,13 +97,13 @@ try:
         submit = st.form_submit_button('Search')
 
     if submit:#run the search
-        st.write('search submitted')
+        
         results, time_tkn = my_searcher.search_for_documents(search_for, 
                                                              searcher_dict, 
-                                                             prev_len, k=num_recs)
+                                                             prev_len=200, k=num_recs)
     
  
-
+        
         st.markdown(f"{my_constant.open_i}Search took:{time_tkn}.{my_constant.close_i}")
                    
        

@@ -97,6 +97,7 @@ try:
         submit = st.form_submit_button('Search')
 
     if submit:#run the search
+        st.write('search submitted')
         results, time_tkn = my_searcher.search_for_documents(search_for, 
                                                              searcher_dict, 
                                                              prev_len, k=num_recs)

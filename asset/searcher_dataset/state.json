@@ -1,0 +1,25 @@
+{
+  "_data_files": [
+    {
+      "filename": "data-00000-of-00001.arrow"
+    }
+  ],
+  "_fingerprint": "d7a384b524df55a1",
+  "_format_columns": [
+    "url",
+    "file_name",
+    "st_ai",
+    "dte0",
+    "title",
+    "date_created",
+    "__index_level_0__",
+    "content",
+    "keywords",
+    "text",
+    "embeddings"
+  ],
+  "_format_kwargs": {},
+  "_format_type": null,
+  "_output_all_columns": false,
+  "_split": null
+}

@@ -1,0 +1,29 @@
+APP:
+  ENVIRONMENT: test
+  DEBUG:  True
+  MODEL_RELATIVE_PATH: model\multi-qa-mpnet-base-dot-v1
+  #path to sentence model
+SEARCHER_SETTINGS:
+  ASSETS_DIR: asset
+  #directory to store content to index and faiss index, relative path app director (os.getcwd()) ..will be appended or specify fullpath
+  FILE_EXTENSIONS_TO_INDEX:
+  FILE_EXTENSIONS_TO_IGNORE:
+  #comma separated list of files extensions to index (only) index files are #searchable eg. .doc, .docx
+
+  MAX_DOCUMENT_LENGTH: 1000
+  #maximum number of characters to be retrieved for each document index 
+  
+  REPLACE_USER_PROFILE_PATH: True
+  #Replace path from user profile path in indexed files ..os.environ['USERPROFILE'], to ensure file thats from network drive are not dependent on user profile path
+  
+  DEFAULT_NUMBER_OF_RECORDS_RETURNED_BY_SEARCH: 20
+  ## of records returned by search ... k in KNN
+  PREVIEW_LENGTH: 300
+  #maximum number of characters to show for preview on search results
+  STOP_WORDS: and, these
+  #comma seperated list for those not in nltk(english)
+
+
+  
+  
+

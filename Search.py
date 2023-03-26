@@ -88,6 +88,9 @@ def load_data_model():
 
 searcher_dict = load_data_model()
 
+#info
+st.write(searcher_dict['search_dataset'])
+
 
 try:
     with st.form('Search'):

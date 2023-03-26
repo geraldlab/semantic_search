@@ -1,6 +1,7 @@
 import streamlit as st
 
 from collections import Counter
+import nltk
 from nltk.corpus import stopwords
 
 import torch
@@ -37,7 +38,6 @@ search_cfg = cfg[my_constant.search_setting]
 max_len = search_cfg.get(my_constant.max_doc_len) if search_cfg.get(my_constant.max_doc_len) else 800
 
 
-
 #config device
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -49,10 +49,7 @@ def load_data_model():
        
         #load from disk
         search_dataset = load_dataset('parquet', data_files=os.path.join(search_ds_path, 'embed_dataset.parquet'), split="train")
-        time.sleep(.2)
-
-        st.write(search_dataset)
-
+       
         if search_dataset is None:
             st.write("Ops sorry! failed to load data")
             raise Exception("Failed to load dataset!!")
@@ -60,6 +57,8 @@ def load_data_model():
         #add faiss index
         search_dataset.add_faiss_index(column=my_constant.embeddings)
         
+        nltk.download('stopwords')
+        time.sleep(.1)
         #load stop words
         stop_words = stopwords.words('english')
 
@@ -67,6 +66,8 @@ def load_data_model():
         if st_wd:
             stop_words = stop_words + [str(s).strip().lower() for s in st_wd.split(my_constant.comma) if s]
     
+        st.write(search_dataset)
+                 
         model_path = os.path.join(os.getcwd(), 'model')
         model_path = os.path.join(model_path, 'multi-qa-mpnet-base-dot-v1')
 

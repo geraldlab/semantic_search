@@ -4,6 +4,7 @@ from collections import Counter
 from nltk.corpus import stopwords
 
 import torch
+from datasets import load_from_disk
 
 import sys, os
 import logging
@@ -28,7 +29,7 @@ cfg = my_utils.get_configuration()
 search_cfg=cfg[my_constant.search_setting] 
 
 
-temp_dir, working_dir, log_dir = cfg.get('temp_dir'), cfg.get('working_dir'), cfg.get('log_dir')
+log_dir = cfg.get('log_dir')
 
 #search config
 search_cfg = cfg[my_constant.search_setting] 
@@ -45,16 +46,21 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 @st.cache_resource
 def load_data_model():
     try:
+        search_ds_path = os.path.join(os.getcwd(), "asset")
+        search_ds_path = os.path.join(search_ds_path, 'searcher_dataset')
 
-        search_ds_path = os.path.join(working_dir, 'searcher_dataset')
-        search_dataset = my_searcher.load_search_dataset(working_dir, search_ds_path)
+        #load from disk
+        search_dataset = load_from_disk(search_ds_path)
+
+        faiss_idx = os.path.join(os.getcwd(), "asset")
+
+        faiss_idx = os.path.join(faiss_idx, "content_index_26_03_2023.faiss")
+
+        search_dataset.load_faiss_index(my_constant.embeddings, faiss_idx )
 
         if search_dataset is None:
-            st.write(os.getcwd())
-
-            st.write(my_constant.abort_msg )
-            raise Exception(f'failed to load search db from: {os.listdir(working_dir)}')
-
+            st.write("Ops! failed to load data")
+        
         #load stop words
         stop_words = stopwords.words('english')
 
@@ -62,6 +68,9 @@ def load_data_model():
         if st_wd:
             stop_words = stop_words + [str(s).strip().lower() for s in st_wd.split(my_constant.comma) if s]
     
+        model_path = os.path.join(os.getcwd(), 'model')
+        model_path = os.path.join(model_path, 'multi-qa-mpnet-base-dot-v1')
+
         #loading model
         sentence_tokenizer, sentence_model = my_searcher.load_sentence_model_tokenizer(model_path, device)
     

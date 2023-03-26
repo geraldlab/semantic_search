@@ -1,7 +1,6 @@
 APP:
   ENVIRONMENT: test
   DEBUG:  True
-  MODEL_RELATIVE_PATH: model\multi-qa-mpnet-base-dot-v1
   #path to sentence model
 SEARCHER_SETTINGS:
   ASSETS_DIR: asset

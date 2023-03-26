@@ -54,18 +54,11 @@ def get_configuration():
 
         if app_setting is None or search_setting is None:
             raise Exception("Missing APP/ SEARCH setting key")
-        
-        working_dir, temp_dir, log_dir = setup_wk_dirs(app_setting)
-
-        if temp_dir is None or working_dir is None or log_dir is None :
-            raise Exception('Aborted - Working dir not set!!')
-        
+             
         return {
                 my_constant.app:app_setting,
                 my_constant.search_setting:search_setting,
-                'working_dir':working_dir,
-                'temp_dir':temp_dir, 
-                'log_dir':log_dir
+                'log_dir': os.path.join(os.getcwd(), 'log' )
 
         }
     except Exception as e:

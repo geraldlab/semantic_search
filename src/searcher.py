@@ -202,6 +202,7 @@ def load_search_dataset(working_dir, search_ds_path, sfx='runtime'):
     
         #load from disk
         search_dataset = load_from_disk(search_ds_path)
+        search_dataset.load_faiss_index(my_constant.embeddings, faiss_idx )
 
         #load faiss index from disk
         faiss_idx = get_faiss_idx_path(working_dir)

@@ -56,7 +56,6 @@ yaml_file_name='search_documents_yaml.yaml'
 app='APP'
 search_setting= 'SEARCHER_SETTINGS'
 
-model_path='MODEL_RELATIVE_PATH'
 searcher_settings = 'SEARCHER_SETTINGS'
 asset_dir ='ASSETS_DIR'
 

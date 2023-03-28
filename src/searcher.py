@@ -51,8 +51,9 @@ def add_highlight_markers(search, content, stop_words, prev_len):
     - method inserts open and closing tags, to for search in content
    '''
  
-   kw = set(my_utils.remove_punctuation(my_utils.remove_stopwords(search, stop_words)).split())
-   val = set(my_utils.remove_punctuation(my_utils.remove_stopwords(content, stop_words)).split())
+   low_cont = str.lower(content)
+   kw = set(my_utils.remove_punctuation(my_utils.remove_stopwords(str.lower(search), stop_words)).split())
+   val = set(my_utils.remove_punctuation(my_utils.remove_stopwords(low_cont, stop_words)).split())
    
    isect_words = kw.intersection(val)
    
@@ -68,18 +69,19 @@ def add_highlight_markers(search, content, stop_words, prev_len):
     #insert markers in text
     tagged_txt = ''
     start = 0
+    space= ' '
 
     if len(wd_content) > 0:
         wd_content = sorted(wd_content.items())
         for wd in wd_content:
             if wd[0] < prev_len + min(wd_content)[0]:
-                tagged_txt = tagged_txt + content[start:wd[0]]  + my_constant.opening_tag + content[wd[0]: wd[0] + len(wd[1])] + my_constant.closing_tag
+                tagged_txt = tagged_txt + space + content[start:wd[0]]  + my_constant.opening_tag + content[wd[0]: wd[0] + len(wd[1])].strip() + my_constant.closing_tag + space
                 start = wd[0] + len(wd[1])
         #update prev len
         prev_len = len(tagged_txt) + 10      
-        content = tagged_txt + content[len(tagged_txt): 10]
+        content = tagged_txt + content[len(tagged_txt):]
     
-   return content[:prev_len], num_found
+   return content, num_found
 
 def post_process_result(df, search_term, searcher_dict, prev_len = 200):
     h_dict = defaultdict(list)

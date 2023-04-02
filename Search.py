@@ -105,7 +105,7 @@ try:
         
         results, time_tkn = my_searcher.search_for_documents(search_for, 
                                                              searcher_dict, 
-                                                             prev_len=200, k=num_recs)
+                                                             k=num_recs)
     
  
         

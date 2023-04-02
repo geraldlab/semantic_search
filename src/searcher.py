@@ -3,7 +3,7 @@ import pandas as pd
 from collections import defaultdict
 
 
-import os
+import os, re
 from pathlib import Path
 from datetime import datetime
 import streamlit as st
@@ -46,57 +46,53 @@ def get_embeddings(text_list, sentence_tokenizer, sentence_model, device):
     - Search 
 '''
 
-def add_highlight_markers(search, content, stop_words, prev_len):
-   '''
-    - method inserts open and closing tags, to for search in content
-   '''
- 
-   low_cont = str.lower(content)
-   kw = set(my_utils.remove_punctuation(my_utils.remove_stopwords(str.lower(search), stop_words)).split())
-   val = set(my_utils.remove_punctuation(my_utils.remove_stopwords(low_cont, stop_words)).split())
+def add_highlight_markers(search_for, content, stop_words):
    
-   isect_words = kw.intersection(val)
+    #get common words on both content
+    kw = set(my_utils.remove_punctuation(my_utils.remove_stopwords(str.lower(search_for), stop_words)).split())
+    val = set(my_utils.remove_punctuation(my_utils.remove_stopwords(str.lower(content), stop_words)).split())
    
-   num_found = 0
-   if len(isect_words) > 0:
-    wd_content = {}
-          
-    for k in list(isect_words):
-        for p in my_utils.find_all_loc(k, content):
-           wd_content[p] =k
-    
-    num_found = len(wd_content)
-    #insert markers in text
-    tagged_txt = ''
-    start = 0
-    space= ' '
+    #common words
+    def replace_all(pattern, content) -> str:
+        c_wds = re.findall(pattern, content, re.IGNORECASE)
+        i = len(c_wds)
+        occurences = list(set(c_wds))
+                 
+        for occurence in occurences:
+            repl = my_constant.opening_tag + occurence.strip() + my_constant.closing_tag
+            content = content.replace(occurence, repl)
 
-    if len(wd_content) > 0:
-        wd_content = sorted(wd_content.items())
-        for wd in wd_content:
-            if wd[0] < prev_len + min(wd_content)[0]:
-                tagged_txt = tagged_txt + space + content[start:wd[0]]  + my_constant.opening_tag + content[wd[0]: wd[0] + len(wd[1])].strip() + my_constant.closing_tag + space
-                start = wd[0] + len(wd[1])
-        #update prev len
-        prev_len = len(tagged_txt) + 10      
-        content = tagged_txt + content[len(tagged_txt):]
+        return content, i
     
-   return content, num_found
+    x = 0
+    for wd in kw.intersection(val):
+        content, i = replace_all(wd, content)
+        x = x + i
+   
+    return content, x
 
-def post_process_result(df, search_term, searcher_dict, prev_len = 200):
+def post_process_result(df, search_term, searcher_dict):
     h_dict = defaultdict(list)
    
     for i, row in df.iterrows():
         
         #highlight content
-        num_in_content_score = 0
-        _content, num_words_in_content = add_highlight_markers(search_term, row[my_constant.content], 
-                                              searcher_dict['stop_words'], prev_len)
+        #highlight content
+        num_words_in_content = 0
+        _content = row[my_constant.content]
+       
+
+        if _content and _content.strip() != '':
+            _content, num_words_in_content = add_highlight_markers(search_term, _content, 
+                                              searcher_dict['stop_words'])
                      
         #highlight keywords
-       
-        _kword, num_in_kword_score= add_highlight_markers(search_term, row[my_constant.keywords], 
-                                         searcher_dict['stop_words'], prev_len)
+        _kword = row[my_constant.keywords]
+        num_in_kword_score = 0
+
+        if _kword and _kword.strip() != '':
+            _kword, num_in_kword_score= add_highlight_markers(search_term, _kword, 
+                                         searcher_dict['stop_words'])
 
         #add to score
         num_in_kword_score = num_in_kword_score * 5
@@ -112,7 +108,7 @@ def post_process_result(df, search_term, searcher_dict, prev_len = 200):
         h_dict[my_constant.keywords].append(_kword)
         h_dict['num_in_kword_score'].append(num_in_kword_score)
 
-        score =  row[my_constant.scores] + num_in_content_score + num_in_kword_score
+        score =  row[my_constant.scores] + num_in_kword_score
         
         h_dict[my_constant.scores].append(f'{score:.1f}')
 
@@ -145,7 +141,7 @@ def get_search_result(search_dataset, search_term,
     
 
 
-def search_for_documents(search_for, searcher_dict, prev_len, k=10):
+def search_for_documents(search_for, searcher_dict, k=10):
     try:
         start_tme = datetime.now()
     
@@ -157,7 +153,7 @@ def search_for_documents(search_for, searcher_dict, prev_len, k=10):
      
         results = results.drop_duplicates(subset=printable_cols)
 
-        marked_result = post_process_result(results, search_for, searcher_dict, prev_len=prev_len)
+        marked_result = post_process_result(results, search_for, searcher_dict)
 
         return marked_result, my_utils.get_time_taken(start_tme)
     except Exception as e:
@@ -185,11 +181,11 @@ def get_faiss_idx_path(working_dir):
 '''
 
 def print_streamlit_results(_df):
-       
+       prev_len =1300
        for i, row in _df.iterrows():
         st.markdown(f"{my_constant.opening_tag}{row[my_constant.title]}{my_constant.closing_tag}")
         st.write(f"Symbol: {row['st_ai']} [link]({row[my_constant.url]})")
-        content = my_utils.remove_multiple_spaces(row[my_constant.content].strip())
+        content = my_utils.remove_multiple_spaces(row[my_constant.content].strip()[:prev_len])
 
         st.markdown(f"{my_constant.open_i}{content}{my_constant.close_i} ...")
 
